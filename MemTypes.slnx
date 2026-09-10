@@ -1,0 +1,7 @@
+<Solution>
+  <Configurations>
+    <Platform Name="x64" />
+    <Platform Name="x86" />
+  </Configurations>
+  <Project Path="MemTypes.vcxproj" Id="fc33a173-b7b0-40c6-ba4a-104b21548950" />
+</Solution>
