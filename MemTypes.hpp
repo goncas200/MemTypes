@@ -2,6 +2,8 @@
 #define TYPE8b long long
 #define sizetype unsigned long long
 #define MEMTYPES_MAGICNUM 0x4D454D5459504553ULL
+#define MAXULL 0xFFFFFFFFFFFFFFFFULL
+
 
 #ifdef _WIN32
 #include <Windows.h>
@@ -70,6 +72,7 @@ inline void free_mem(void* ptr) {
 #endif 
 
 
+
 class TYPE16b {
 public:
 	friend TYPE16b operator+(const TYPE16b& first, const TYPE16b& second) {
@@ -122,12 +125,20 @@ public:
 		if (first.low < second.low) return false;
 		return false;
 	}
+	friend bool operator==(const TYPE16b& first, const TYPE16b& second) {
+		if (first.high == second.high && first.low == second.low) return true;
+		return false;
+	}
 
-	TYPE8b high = 0;
 	TYPE8b low = 0;
+	TYPE8b high = 0;
+	
 	
 	void operator+=(const TYPE16b& first){
 		*this = *this + first;
+	}
+	void operator-=(const TYPE16b& first) {
+		*this = *this - first;
 	}
 	TYPE16b(TYPE8b num) {
 		this->low = num;
@@ -147,8 +158,213 @@ public:
 			this->high -= 1;
 		}
 	}
+	
 
 	
+};
+
+class TYPE32b {
+public:
+	friend TYPE32b operator+(const TYPE32b& first, const TYPE32b& second) {
+		TYPE32b temp;
+		TYPE8b carry;
+		temp.low.low = first.low.low + second.low.low;
+		if (temp.low.low < first.low.low) carry = 1;
+		else carry = 0;
+		temp.low.high = first.low.high + second.low.high + carry;
+		if (temp.low.high < first.low.high || (carry == 1 && temp.low.high == first.low.high)) carry = 1;
+		else carry = 0;
+		temp.high.low = first.high.low + second.high.low + carry;
+		if (temp.high.low < first.high.low || (carry == 1 && temp.high.low == first.high.low)) carry = 1;
+		else carry = 0;
+		temp.high.high = first.high.high + second.high.high + carry;
+		return temp;
+	}
+	friend TYPE32b operator-(const TYPE32b& first, const TYPE32b& second) {
+		TYPE32b temp;
+		TYPE8b carry;
+		temp.low.low = first.low.low - second.low.low;
+		if (temp.low.low > first.low.low) carry = 1;
+		else carry = 0;
+		temp.low.high = first.low.high - second.low.high - carry;
+		if (temp.low.high > first.low.high || (carry == 1 && temp.low.high == first.low.high)) carry = 1;
+		else carry = 0;
+		temp.high.low = first.high.low - second.high.low - carry;
+		if (temp.high.low > first.high.low || (carry == 1 && temp.high.low == first.high.low)) carry = 1;
+		else carry = 0;
+		temp.high.high = first.high.high - second.high.high - carry;
+		return temp;
+	}
+	friend bool operator<(const TYPE32b& first, const TYPE32b& second) {
+		if (first.high == second.high && first.low == second.low) return false;
+		if (first.high < second.high) return true;
+		if (first.high > second.high) return false;
+		if (first.low < second.low) return true;
+		if (first.low > second.low) return false;
+		return false;
+	}
+	friend bool operator>(const TYPE32b& first, const TYPE32b& second) {
+		if (first.high == second.high && first.low == second.low) return false;
+		if (first.high > second.high) return true;
+		if (first.high < second.high) return false;
+		if (first.low > second.low) return true;
+		if (first.low < second.low) return false;
+		return false;
+	}
+	friend bool operator<=(const TYPE32b& first, const TYPE32b& second) {
+		if (first.high == second.high && first.low == second.low) return true;
+		if (first.high < second.high) return true;
+		if (first.high > second.high) return false;
+		if (first.low < second.low) return true;
+		if (first.low > second.low) return false;
+		return false;
+	}
+	friend bool operator>=(const TYPE32b& first, const TYPE32b& second) {
+		if (first.high == second.high && first.low == second.low) return true;
+		if (first.high > second.high) return true;
+		if (first.high < second.high) return false;
+		if (first.low > second.low) return true;
+		if (first.low < second.low) return false;
+		return false;
+	}
+	friend bool operator==(const TYPE32b& first, const TYPE32b& second) {
+		if (first.high == second.high && first.low == second.low) return true;
+		return false;
+	}
+
+	TYPE16b low = 0;
+	TYPE16b high = 0;
+	
+
+	void operator+=(const TYPE32b& first) {
+		*this = *this + first;
+	}
+	void operator-=(const TYPE32b& first) {
+		*this = *this - first;
+	}
+	TYPE32b(TYPE16b num) {
+		this->low = num;
+	}
+	TYPE32b() {}
+	void operator+=(const TYPE16b& first) {
+		TYPE16b before = this->low;
+		int plusone = 0;
+		this->low.low += first.low;
+		if (before.low > this->low.low) {
+			plusone = 1;
+		}
+		this->low.high = this->low.high + first.high + plusone;
+		if (before.high > this->low.high || (plusone == 1 && before.high == this->low.high)) plusone = 1;
+		else plusone = 0;
+		this->high.low += plusone;
+		if (this->high.low == 0 && plusone == 1) this->high.high += 1;
+	}
+	void operator-=(const TYPE16b& first) {
+		TYPE16b before = this->low;
+		int plusone = 0;
+		this->low.low -= first.low;
+		if (before.low < this->low.low) {
+			plusone = 1;
+		}
+		this->low.high = this->low.high - first.high - plusone;
+		if (before.high < this->low.high || (plusone == 1 && before.high == this->low.high)) plusone = 1;
+		else plusone = 0;
+		this->high.low -= plusone;
+		if (this->high.low == MAXULL && plusone == 1) this->high.high -= 1;
+	}
+
+
+};
+
+void my_memcpy(const void* src, void* dest, sizetype buffer) {
+	if (buffer == 0 || dest == nullptr || src == nullptr) return;
+	if (buffer < 8) {
+		for (sizetype i = 0; i < buffer; ++i) {
+			((unsigned char*)dest)[i] = ((unsigned char*)src)[i];
+		}
+	}
+	else {
+		sizetype n_times = buffer / sizeof(sizetype);
+		const sizetype* d_src = (const sizetype*)src;
+		sizetype* d_dest = (sizetype*)dest;
+		for (sizetype i = 0; i < n_times; ++i) {
+			d_dest[i] = d_src[i];
+		}
+		sizetype bytes_cp = n_times * sizeof(sizetype);
+		for (sizetype i = bytes_cp; i < buffer; ++i) {
+			((unsigned char*)dest)[i] = ((unsigned char*)src)[i];
+		}
+	}
+
+}
+
+template<class T>
+class vector {
+private:
+	T* data = nullptr;
+	bool large = false;
+	sizetype current_size = 0;
+	int max = 0;
+	int index = 0;
+	
+	void make_new_max() {
+		T* new_ptr = nullptr;
+		if (large) {
+			new_ptr = (T*)alloc_mem(current_size + sizeof(T));
+			if (new_ptr != nullptr) {
+				my_memcpy(data, new_ptr, current_size);
+				current_size += sizeof(T);
+				free_mem(data);
+				data = new_ptr;
+				max += 1;
+			}
+		}
+		else {
+			new_ptr = (T*)alloc_mem(current_size + (sizeof(T) * 100));
+			if (new_ptr != nullptr) {
+				my_memcpy(data, new_ptr, current_size);
+				current_size += sizeof(T) * 100;
+				free_mem(data);
+				data = new_ptr;
+				max += 100;
+			}
+		}
+	}
+public:
+
+	void operator=(const vector& a) {
+		free_mem(this->data);
+		this->index = a.index;
+		this->current_size = a.current_size;
+		this->large = a.large;
+		this->data = (T*)alloc_mem(a.current_size);
+		this->max = a.max;
+		my_memcpy(a.data, this->data, a.current_size);
+	}
+	vector() {
+		if (sizeof(T) <= 128) {
+			current_size = sizeof(T) * 100;
+			data = (T*)alloc_mem(current_size);
+			max = 100;
+		}
+		else {
+			large = true;
+			current_size = sizeof(T);
+			data = (T*)alloc_mem(current_size);
+			max = 1;
+		}
+	}
+	vector(const vector& a) {
+		this->index = a.index;
+		this->current_size = a.current_size;
+		this->large = a.large;
+		this->data = (T*)alloc_mem(a.current_size);
+		this->max = a.max;
+		my_memcpy(a.data, this->data, a.current_size);
+	}
+	~vector() {
+		free_mem(data);
+	}
 };
 
 class TYPE1Gb {
@@ -156,6 +372,11 @@ private:
 	TYPE16b* boxes = nullptr;
 	TYPE8b n_boxes = (1024ULL*1024ULL*1024ULL) / 16ULL;
 public:
+
+	/*friend ostream& operator<<(ostream& os, TYPE1Gb big_num) {
+		
+	}*/
+
 	TYPE1Gb(const TYPE1Gb& other) {
 		this->boxes = (TYPE16b*)alloc_mem(1024ULL * 1024ULL * 1024ULL);
 		this->n_boxes = other.n_boxes;
@@ -187,6 +408,7 @@ public:
 			temp.boxes[a] = first.boxes[a] + second.boxes[a] + transporter; //Adds
 			if (temp.boxes[a].high < before || (plus_one == 1 && temp.boxes[a].high == before)) plus_one = 1; //Check if it overflows
 			else plus_one = 0;
+
 		}
 		return temp;
 	}
