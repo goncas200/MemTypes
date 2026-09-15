@@ -1,5 +1,5 @@
 #pragma once
-#define TYPE8b long long
+#define TYPE8b unsigned long long
 #define sizetype unsigned long long
 #define MEMTYPES_MAGICNUM 0x4D454D5459504553ULL
 #define MAXULL 0xFFFFFFFFFFFFFFFFULL
@@ -7,7 +7,7 @@
 
 #ifdef _WIN32
 #include <Windows.h>
-__forceinline void* alloc_mem(const sizetype buffer) {
+inline void* alloc_mem(const sizetype buffer) {
 	if (buffer == 0) return nullptr;
 	sizetype buffer_with_metadata = buffer + 16;
 	sizetype alligned_buffer = (buffer_with_metadata + 4095) & ~4095;
@@ -20,7 +20,7 @@ __forceinline void* alloc_mem(const sizetype buffer) {
 	return ptr;
 }
 
-__forceinline void free_mem(void* ptr) {
+inline void free_mem(void* ptr) {
 	if (ptr == nullptr) return;
 	void* raw_ptr = (void*)(((unsigned char*)ptr) - 16);
 	if (((sizetype*)raw_ptr)[0] != MEMTYPES_MAGICNUM) return;
@@ -72,10 +72,11 @@ inline void free_mem(void* ptr) {
 #endif 
 
 
+#ifdef _WIN32
 
 class TYPE16b {
 public:
-	friend TYPE16b operator+(const TYPE16b& first, const TYPE16b& second) {
+	inline friend TYPE16b operator+(const TYPE16b& first, const TYPE16b& second) {
 		TYPE16b temp;
 		temp.high = first.high + second.high;
 		temp.low = first.low + second.low;
@@ -84,7 +85,7 @@ public:
 		}
 		return temp;
 	}
-	friend TYPE16b operator-(const TYPE16b& first, const TYPE16b& second) {
+	inline friend TYPE16b operator-(const TYPE16b& first, const TYPE16b& second) {
 		TYPE16b temp;
 		temp.high = first.high - second.high;
 		temp.low = first.low - second.low;
@@ -93,7 +94,7 @@ public:
 		}
 		return temp;
 	}
-	friend bool operator<(const TYPE16b& first, const TYPE16b& second) {
+	inline friend bool operator<(const TYPE16b& first, const TYPE16b& second) {
 		if (first.high == second.high && first.low == second.low) return false;
 		if (first.high < second.high) return true;
 		if (first.high > second.high) return false;
@@ -101,7 +102,7 @@ public:
 		if (first.low > second.low) return false;
 		return false;
 	}
-	friend bool operator>(const TYPE16b& first, const TYPE16b& second) {
+	inline friend bool operator>(const TYPE16b& first, const TYPE16b& second) {
 		if (first.high == second.high && first.low == second.low) return false;
 		if (first.high > second.high) return true;
 		if (first.high < second.high) return false;
@@ -109,7 +110,7 @@ public:
 		if (first.low < second.low) return false;
 		return false;
 	}
-	friend bool operator<=(const TYPE16b& first, const TYPE16b& second) {
+	inline friend bool operator<=(const TYPE16b& first, const TYPE16b& second) {
 		if (first.high == second.high && first.low == second.low) return true;
 		if (first.high < second.high) return true;
 		if (first.high > second.high) return false;
@@ -117,7 +118,7 @@ public:
 		if (first.low > second.low) return false;
 		return false;
 	}
-	friend bool operator>=(const TYPE16b& first, const TYPE16b& second) {
+	inline friend bool operator>=(const TYPE16b& first, const TYPE16b& second) {
 		if (first.high == second.high && first.low == second.low) return true;
 		if (first.high > second.high) return true;
 		if (first.high < second.high) return false;
@@ -125,7 +126,7 @@ public:
 		if (first.low < second.low) return false;
 		return false;
 	}
-	friend bool operator==(const TYPE16b& first, const TYPE16b& second) {
+	inline friend bool operator==(const TYPE16b& first, const TYPE16b& second) {
 		if (first.high == second.high && first.low == second.low) return true;
 		return false;
 	}
@@ -134,24 +135,24 @@ public:
 	TYPE8b high = 0;
 	
 	
-	void operator+=(const TYPE16b& first){
+	inline void operator+=(const TYPE16b& first){
 		*this = *this + first;
 	}
-	void operator-=(const TYPE16b& first) {
+	inline void operator-=(const TYPE16b& first) {
 		*this = *this - first;
 	}
 	TYPE16b(TYPE8b num) {
 		this->low = num;
 	}
 	TYPE16b(){}
-	void operator+=(const TYPE8b& first) {
+	inline void operator+=(const TYPE8b& first) {
 		TYPE8b before = this->low;
 		this->low += first;
 		if (this->low < before) {
 			this->high += 1;
 		}
 	}
-	void operator-=(const TYPE8b& first) {
+	inline void operator-=(const TYPE8b& first) {
 		TYPE8b before = this->low;
 		this->low -= first;
 		if (this->low > before) {
@@ -165,7 +166,7 @@ public:
 
 class TYPE32b {
 public:
-	friend TYPE32b operator+(const TYPE32b& first, const TYPE32b& second) {
+	inline friend TYPE32b operator+(const TYPE32b& first, const TYPE32b& second) {
 		TYPE32b temp;
 		TYPE8b carry;
 		temp.low.low = first.low.low + second.low.low;
@@ -180,7 +181,7 @@ public:
 		temp.high.high = first.high.high + second.high.high + carry;
 		return temp;
 	}
-	friend TYPE32b operator-(const TYPE32b& first, const TYPE32b& second) {
+	inline friend TYPE32b operator-(const TYPE32b& first, const TYPE32b& second) {
 		TYPE32b temp;
 		TYPE8b carry;
 		temp.low.low = first.low.low - second.low.low;
@@ -195,7 +196,7 @@ public:
 		temp.high.high = first.high.high - second.high.high - carry;
 		return temp;
 	}
-	friend bool operator<(const TYPE32b& first, const TYPE32b& second) {
+	inline friend bool operator<(const TYPE32b& first, const TYPE32b& second) {
 		if (first.high == second.high && first.low == second.low) return false;
 		if (first.high < second.high) return true;
 		if (first.high > second.high) return false;
@@ -203,7 +204,7 @@ public:
 		if (first.low > second.low) return false;
 		return false;
 	}
-	friend bool operator>(const TYPE32b& first, const TYPE32b& second) {
+	inline friend bool operator>(const TYPE32b& first, const TYPE32b& second) {
 		if (first.high == second.high && first.low == second.low) return false;
 		if (first.high > second.high) return true;
 		if (first.high < second.high) return false;
@@ -211,7 +212,7 @@ public:
 		if (first.low < second.low) return false;
 		return false;
 	}
-	friend bool operator<=(const TYPE32b& first, const TYPE32b& second) {
+	inline friend bool operator<=(const TYPE32b& first, const TYPE32b& second) {
 		if (first.high == second.high && first.low == second.low) return true;
 		if (first.high < second.high) return true;
 		if (first.high > second.high) return false;
@@ -219,7 +220,7 @@ public:
 		if (first.low > second.low) return false;
 		return false;
 	}
-	friend bool operator>=(const TYPE32b& first, const TYPE32b& second) {
+	inline friend bool operator>=(const TYPE32b& first, const TYPE32b& second) {
 		if (first.high == second.high && first.low == second.low) return true;
 		if (first.high > second.high) return true;
 		if (first.high < second.high) return false;
@@ -227,7 +228,7 @@ public:
 		if (first.low < second.low) return false;
 		return false;
 	}
-	friend bool operator==(const TYPE32b& first, const TYPE32b& second) {
+	inline friend bool operator==(const TYPE32b& first, const TYPE32b& second) {
 		if (first.high == second.high && first.low == second.low) return true;
 		return false;
 	}
@@ -236,17 +237,17 @@ public:
 	TYPE16b high = 0;
 	
 
-	void operator+=(const TYPE32b& first) {
+	inline void operator+=(const TYPE32b& first) {
 		*this = *this + first;
 	}
-	void operator-=(const TYPE32b& first) {
+	inline void operator-=(const TYPE32b& first) {
 		*this = *this - first;
 	}
 	TYPE32b(TYPE16b num) {
 		this->low = num;
 	}
 	TYPE32b() {}
-	void operator+=(const TYPE16b& first) {
+	inline void operator+=(const TYPE16b& first) {
 		TYPE16b before = this->low;
 		int plusone = 0;
 		this->low.low += first.low;
@@ -259,7 +260,7 @@ public:
 		this->high.low += plusone;
 		if (this->high.low == 0 && plusone == 1) this->high.high += 1;
 	}
-	void operator-=(const TYPE16b& first) {
+	inline void operator-=(const TYPE16b& first) {
 		TYPE16b before = this->low;
 		int plusone = 0;
 		this->low.low -= first.low;
@@ -276,7 +277,7 @@ public:
 
 };
 
-void my_memcpy(const void* src, void* dest, sizetype buffer) {
+inline void my_memcpy(const void* src, void* dest, sizetype buffer) {
 	if (buffer == 0 || dest == nullptr || src == nullptr) return;
 	if (buffer < 8) {
 		for (sizetype i = 0; i < buffer; ++i) {
@@ -307,7 +308,7 @@ private:
 	int max = 0;
 	int index = 0;
 	
-	void make_new_max() {
+	inline bool make_new_max() {
 		T* new_ptr = nullptr;
 		if (large) {
 			new_ptr = (T*)alloc_mem(current_size + sizeof(T));
@@ -317,7 +318,9 @@ private:
 				free_mem(data);
 				data = new_ptr;
 				max += 1;
-			}
+				return true;
+			} 
+			return false;
 		}
 		else {
 			new_ptr = (T*)alloc_mem(current_size + (sizeof(T) * 100));
@@ -327,13 +330,44 @@ private:
 				free_mem(data);
 				data = new_ptr;
 				max += 100;
+				return true;
 			}
+			return false;
 		}
 	}
+	inline vector(bool) {}
 public:
 
-	void operator=(const vector& a) {
-		free_mem(this->data);
+	inline friend vector<T> operator+(const vector<T>& first, const vector<T>& second) { 
+		vector<T> new_vector(true);
+		if (first.large) {
+			new_vector.large = true;
+			new_vector.current_size = (first.index + second.index)* sizeof(T) + (sizeof(T) * 100);
+		}
+		else {
+			new_vector.large = false;
+			new_vector.current_size = (first.index + second.index) * sizeof(T) + (sizeof(T) * 2);
+		}
+		new_vector.data = (T*)alloc_mem(new_vector.current_size);
+		new_vector.index = 0;
+		new_vector.max = new_vector.current_size / sizeof(T);
+		int second_index = 0;
+		if (new_vector.data != nullptr) {
+			while (new_vector.index < first.index) {
+				new_vector.data[new_vector.index] = first.data[new_vector.index];
+				++new_vector.index;
+			}
+			while (second_index < second.index) {
+				new_vector.data[new_vector.index] = second.data[second_index];
+				++new_vector.index;
+				++second_index;
+			}
+		}
+		return new_vector;
+	}
+
+	inline void operator=(const vector& a) {
+		free_mem(this->data);		//When using operator= there is already allocatted data so when need to free it
 		this->index = a.index;
 		this->current_size = a.current_size;
 		this->large = a.large;
@@ -365,6 +399,32 @@ public:
 	~vector() {
 		free_mem(data);
 	}
+
+	inline bool add(const T& value) {
+		if (max > index) {
+			data[index] = value;
+			++index;
+			return true;
+		}
+		else {
+			if (make_new_max()) {
+				data[index] = value;
+				++index;
+				return true;
+			}
+			return false;
+		}
+	}
+	T& operator[](int index) {
+		return this->data[index];
+	}
+	T* begin() {
+		return data;
+	}
+	T* end() {
+		return data + index;
+	}
+
 };
 
 class TYPE1Gb {
@@ -387,7 +447,7 @@ public:
 			}
 		}
 	}
-	TYPE1Gb& operator=(const TYPE1Gb& other) {
+	inline TYPE1Gb& operator=(const TYPE1Gb& other) {
 		if (this != &other) {
 			if (this->boxes != nullptr && other.boxes != nullptr) {
 				for (TYPE8b a = 0; a < n_boxes; ++a) {
@@ -397,9 +457,9 @@ public:
 		}
 		return *this;
 	}
-	friend TYPE1Gb operator+(const TYPE1Gb& first, const TYPE1Gb& second) {
+	inline friend TYPE1Gb operator+(const TYPE1Gb& first, const TYPE1Gb& second) {
 		TYPE1Gb temp;
-		TYPE8b plus_one = 0; //Like math (contas em pe)
+		TYPE8b plus_one = 0;				//Needed to carry the overflow
 		for (TYPE8b a = 0; a < first.n_boxes; ++a) {
 			TYPE8b before = first.boxes[a].high; 
 			TYPE16b transporter;             // Need to transport thew plus_one
@@ -422,7 +482,7 @@ public:
 	~TYPE1Gb() {
 		free_mem(boxes);
 	}
-	void operator+=(const TYPE1Gb& a) {
+	inline void operator+=(const TYPE1Gb& a) {
 		*this = *this + a;
 	}
 	TYPE1Gb(const char* num_cstr) {
@@ -452,3 +512,4 @@ public:
 
 
 };
+#endif
